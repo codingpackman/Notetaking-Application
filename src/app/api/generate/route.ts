@@ -9,8 +9,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Text or image is required' }, { status: 400 });
     }
 
-    // Initialize the Gemini API client. It automatically uses process.env.GEMINI_API_KEY
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY is missing. Please set it in your .env.local file.' },
+        { status: 500 }
+      );
+    }
+
+    // Initialize the Gemini API client.
+    const ai = new GoogleGenAI({ apiKey });
 
     let promptText = '';
     const textContext = text ? `\n\n"${text}"` : (image ? `\n\n(See attached image)` : '');
@@ -55,7 +63,7 @@ export async function POST(req: NextRequest) {
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash-lite',
       contents: contents,
     });
 
