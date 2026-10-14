@@ -38,7 +38,7 @@ export default function PdfViewerArea() {
   const addAiHistoryItem = useAppStore((state) => state.addAiHistoryItem);
 
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
-  const scrollViewerTo = useRef<((highlight: unknown) => void) | null>(null);
+  const scrollViewerTo = useRef<((highlight: IHighlight) => void) | null>(null);
 
   useEffect(() => {
     if (currentPdf) {
@@ -50,10 +50,11 @@ export default function PdfViewerArea() {
 
   // Listen for scroll events from the Sidebar
   useEffect(() => {
-    const handleScroll = (e: unknown) => {
-      const node = e.detail;
+    const handleScroll = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const node = customEvent.detail;
       if (node && node.boundingRect && scrollViewerTo.current) {
-        scrollViewerTo.current(node);
+        scrollViewerTo.current(node as unknown as IHighlight);
       }
     };
     window.addEventListener('scrollToBookmark', handleScroll);
@@ -96,7 +97,7 @@ export default function PdfViewerArea() {
   }
 
   return (
-    <div className="flex-1 h-full relative" style={{ height: '100vh' }}>
+    <div className="flex-1 h-full relative">
       <PdfLoader 
         url={currentPdf.url} 
         beforeLoad={<div className="p-4">Loading PDF...</div>}
