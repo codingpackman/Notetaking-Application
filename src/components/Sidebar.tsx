@@ -98,7 +98,7 @@ function TreeNode({ node, level }: { node: FileNode; level: number }) {
     <div>
       <div
         className={clsx(
-          "flex items-center py-1 px-2 hover:bg-gray-100 cursor-pointer rounded-md text-sm transition-colors",
+          "flex items-center py-1 px-2 hover:bg-gray-100 cursor-pointer rounded-md text-base transition-colors",
           isPdf && currentPdf?.id === node.id && "bg-blue-50 text-blue-700"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
