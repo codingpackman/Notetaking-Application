@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Initialize the Gemini API client. It automatically uses process.env.GEMINI_API_KEY
-    const ai = new GoogleGenAI({});
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     let promptText = '';
     const textContext = text ? `\n\n"${text}"` : (image ? `\n\n(See attached image)` : '');
