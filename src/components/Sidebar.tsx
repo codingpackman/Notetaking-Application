@@ -23,15 +23,21 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r">
-      <div className="p-4 border-b flex justify-between items-center bg-gray-50">
-        <h2 className="font-semibold text-lg">My Files</h2>
+    <div className="flex flex-col h-full bg-slate-50/80 border-r border-slate-200/80 backdrop-blur-sm">
+      <div className="p-3.5 sm:p-4 border-b border-slate-200/80 flex justify-between items-center bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-indigo-500/20 rounded-lg border border-indigo-400/30">
+            <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-300" />
+          </div>
+          <h2 className="font-bold text-base sm:text-lg lg:text-xl xl:text-2xl tracking-tight text-white">My Files</h2>
+        </div>
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-1.5 hover:bg-gray-200 rounded-md transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-lg transition-all shadow-sm text-xs sm:text-sm font-medium"
           title="Upload PDF"
         >
-          <Upload size={18} />
+          <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span>Upload</span>
         </button>
         <input
           type="file"
@@ -43,7 +49,7 @@ export default function Sidebar() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto p-2.5 space-y-1">
         {fileTree.map((node) => (
           <TreeNode key={node.id} node={node} level={0} />
         ))}
@@ -95,28 +101,34 @@ function TreeNode({ node, level }: { node: FileNode; level: number }) {
   };
 
   return (
-    <div>
+    <div className="group/tree">
       <div
         className={clsx(
-          "flex items-center py-1 px-2 hover:bg-gray-100 cursor-pointer rounded-md text-base transition-colors",
-          isPdf && currentPdf?.id === node.id && "bg-blue-50 text-blue-700"
+          "flex items-center py-2 px-2.5 my-0.5 rounded-lg transition-all cursor-pointer text-sm sm:text-base lg:text-lg xl:text-xl font-medium select-none border border-transparent",
+          isPdf && currentPdf?.id === node.id
+            ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-200/50"
+            : "text-slate-700 hover:bg-white hover:border-slate-200/80 hover:shadow-xs"
         )}
-        style={{ paddingLeft: `${level * 16 + 8}px` }}
+        style={{ paddingLeft: `${level * 16 + 10}px` }}
         onClick={handleClick}
       >
-        <div className="w-5 flex items-center justify-center mr-1">
+        <div className="w-5 h-5 flex items-center justify-center mr-1 shrink-0">
           {(isFolder || isPdf) && node.children && node.children.length > 0 ? (
-            isOpen ? <ChevronDown size={14} className="text-gray-500" /> : <ChevronRight size={14} className="text-gray-500" />
+            isOpen ? (
+              <ChevronDown className={clsx("w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5", isPdf && currentPdf?.id === node.id ? "text-indigo-200" : "text-slate-400")} />
+            ) : (
+              <ChevronRight className={clsx("w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5", isPdf && currentPdf?.id === node.id ? "text-indigo-200" : "text-slate-400")} />
+            )
           ) : (
-             <div className="w-4" /> // Placeholder to align
+             <div className="w-4" />
           )}
         </div>
         
-        {isFolder && <Folder size={16} className="text-blue-500 mr-2 shrink-0" />}
-        {isPdf && <File size={16} className="text-red-500 mr-2 shrink-0" />}
-        {isBookmark && <Bookmark size={14} className="text-yellow-500 mr-2 shrink-0" />}
+        {isFolder && <Folder className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-500 mr-2 shrink-0" />}
+        {isPdf && <File className={clsx("w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 shrink-0", currentPdf?.id === node.id ? "text-indigo-200" : "text-rose-500")} />}
+        {isBookmark && <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-amber-500 mr-2 shrink-0 fill-amber-400/20" />}
         
-        <span className="truncate">{node.name}</span>
+        <span className="truncate flex-1">{node.name}</span>
       </div>
 
       {isOpen && node.children && node.children.length > 0 && (

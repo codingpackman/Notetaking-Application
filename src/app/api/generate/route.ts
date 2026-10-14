@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { action, text, image } = await req.json();
+    const { action, text, image, userMessage, contextText, count } = await req.json();
 
-    if (!text && !image) {
-      return NextResponse.json({ error: 'Text or image is required' }, { status: 400 });
+    if (!text && !image && !userMessage && !contextText) {
+      return NextResponse.json({ error: 'Text, image, or chat message is required' }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -23,21 +23,34 @@ export async function POST(req: NextRequest) {
     let promptText = '';
     const textContext = text ? `\n\n"${text}"` : (image ? `\n\n(See attached image)` : '');
 
+    const requestedCount = count ? Math.min(Math.max(1, parseInt(count, 10) || 1), 20) : null;
+
     switch (action) {
       case 'summary':
         promptText = `Explain the following content in your own words. Assume the reader is a beginner and might not know everything already. Make the summary more detailed than simply repeating what is written. Here is the content:${textContext}`;
         break;
       case 'question_hard':
-        promptText = `Based on the following content, generate a hard practice question to test the reader's understanding. Provide the question and then the answer below it.${textContext}`;
+        promptText = `Based on the following content, generate ${requestedCount ? `${requestedCount} hard practice questions` : 'a hard practice question'} to test the reader's understanding. Provide each question followed by its detailed answer below it.${textContext}`;
         break;
       case 'question_review':
-        promptText = `Based on the following content, generate a review practice question to test the reader's basic understanding. Provide the question and then the answer below it.${textContext}`;
+        promptText = `Based on the following content, generate ${requestedCount ? `${requestedCount} review practice questions` : 'a review practice question'} to test the reader's basic understanding. Provide each question followed by its detailed answer below it.${textContext}`;
         break;
       case 'question_tricky':
-        promptText = `Based on the following content, generate a tricky practice question that might catch the reader off guard. Provide the question and then the answer below it.${textContext}`;
+        promptText = `Based on the following content, generate ${requestedCount ? `${requestedCount} tricky practice questions` : 'a tricky practice question'} that might catch the reader off guard. Provide each question followed by its detailed answer below it.${textContext}`;
         break;
       case 'flashcards':
-        promptText = `Create a few flashcards based on the following content. Format them clearly with 'Front: [Question/Concept]' and 'Back: [Answer/Explanation]'.${textContext}`;
+        promptText = `Create ${requestedCount ? `${requestedCount} flashcards` : 'a few flashcards'} based on the following content. Format each flashcard clearly with 'Front: [Question/Concept]' and 'Back: [Answer/Explanation]'.${textContext}`;
+        break;
+      case 'chat':
+        promptText = `You are a helpful AI study assistant. The user is asking a follow-up question regarding their recent study material or previous AI explanation.
+
+Context from previous study material / response:
+${contextText || text || 'None provided'}
+
+User's follow-up question:
+"${userMessage}"
+
+Provide a clear, thorough, and beginner-friendly answer formatted nicely in markdown.`;
         break;
       default:
         promptText = `Explain the following content:${textContext}`;
