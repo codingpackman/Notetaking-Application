@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PDF Study Tool
+
+A Next.js application that allows you to upload PDFs, highlight text/areas, add bookmarks, and study interactively using AI (Google Gemini).
+
+## Features
+
+- **Upload PDFs**: Load multiple PDF files into your study workspace.
+- **Interactive Highlighting**: Highlight text or select areas (e.g. for images/diagrams) in your PDFs.
+- **Bookmarks**: Bookmark specific parts of the document for quick access.
+- **AI Assistant**:
+  - Get simplified, detailed summaries of highlighted text.
+  - Generate practice questions (hard, review, tricky) based on the content.
+  - Create flashcards from selected text to test your knowledge.
+- **Persistent Storage**: Your files and highlights are stored locally (using Zustand).
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies**:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Set up Environment Variables**:
+   Create a `.env` or `.env.local` file in the root directory and add your Google Gemini API key:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Open [http://localhost:3000](http://localhost:3000)** in your browser to view the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage Guide
+
+### 1. Uploading a PDF
+- In the **My Files** sidebar on the left, click the **Upload (↑)** button.
+- Select one or more PDF files from your computer.
+- Click on a PDF in the file tree to open it in the viewer.
+
+### 2. Highlighting Text & Images
+- **Text Highlight**: Click and drag over any text in the PDF to highlight it.
+- **Area/Image Highlight**: Hold the `Alt` (or `Option`) key, then click and drag to select an area, such as a diagram or image.
+- A popup menu will appear once you finish selecting.
+
+### 3. Using the AI Assistant
+From the highlight popup menu, you can select one of the following AI actions:
+- **Summarize**: Generates a detailed, beginner-friendly explanation of the selected content.
+- **Practice Q**: Hover over this to choose between generating a **Hard**, **Review**, or **Tricky** question based on the selection.
+- **Flashcards**: Creates front/back flashcards for the selected material.
+- The AI's response will appear in the **AI Assistant** sidebar on the right.
+- You can clear your AI history using the trash icon at the top of the AI panel.
+
+### 4. Bookmarks
+- Select text or an area, and click **Bookmark** in the popup menu.
+- The bookmark will be saved under the current PDF in the file tree.
+- Clicking the bookmark in the sidebar will instantly scroll the PDF viewer to that exact location.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font). It relies on [react-pdf-highlighter](https://github.com/agentcooper/react-pdf-highlighter) for rendering PDFs and managing highlights, and Google's [Gemini API](https://ai.google.dev/) for generating AI responses.

@@ -29,7 +29,7 @@ export default function AiPanel() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {aiHistory.length === 0 ? (
           <div className="text-center text-gray-400 mt-10">
-            <p className="text-sm">Highlight text in a PDF to get summaries, practice questions, and flashcards.</p>
+            <p className="text-base">Highlight text in a PDF to get summaries, practice questions, and flashcards.</p>
           </div>
         ) : (
           aiHistory.map((item) => (
@@ -64,19 +64,19 @@ function AiResponseCard({ item }: { item: AiHistoryItem }) {
 
   return (
     <div className={`border rounded-lg overflow-hidden shadow-sm ${config.border}`}>
-      <div className={`px-3 py-2 border-b flex items-center gap-2 text-sm font-medium ${config.bg} ${config.color} ${config.border}`}>
-        <Icon size={16} />
+      <div className={`px-3 py-2 border-b flex items-center gap-2 text-base font-medium ${config.bg} ${config.color} ${config.border}`}>
+        <Icon size={18} />
         {config.label}
       </div>
       <div className="p-3 bg-white">
-        <div className="text-xs text-gray-500 italic mb-2 border-l-2 border-gray-200 pl-2">
+        <div className="text-sm text-gray-500 italic mb-2 border-l-2 border-gray-200 pl-2">
           &quot;{item.highlightedText}&quot;
         </div>
-        <div className="text-sm text-gray-800 whitespace-pre-wrap">
+        <div className="text-base text-gray-800 whitespace-pre-wrap">
           {item.response}
         </div>
       </div>
-      <div className="px-3 py-1.5 bg-gray-50 text-xs text-gray-400 text-right border-t">
+      <div className="px-3 py-1.5 bg-gray-50 text-sm text-gray-400 text-right border-t">
         {new Date(item.timestamp).toLocaleTimeString()}
       </div>
     </div>

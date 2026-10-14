@@ -63,7 +63,8 @@ export default function PdfViewerArea() {
 
   const addHighlight = (highlight: NewHighlight) => {
     console.log('Saving highlight', highlight);
-    setHighlights((prev) => [{ ...highlight, id: String(Date.now()) }, ...prev]);
+    // Replace previous highlights to unhighlight the previous box
+    setHighlights([{ ...highlight, id: String(Date.now()) }]);
   };
 
   const updateHighlight = (
@@ -233,6 +234,14 @@ function CustomTip({
   onConfirm: (action: string, comment?: string) => void;
   onUpdate?: () => void;
 }) {
+  // onUpdate is injected by react-pdf-highlighter and must be consumed
+  // to avoid passing it to the DOM div below.
+  useEffect(() => {
+    if (onUpdate) {
+      onUpdate();
+    }
+  }, [onUpdate]);
+
   return (
     <div className="bg-white rounded-md shadow-lg border p-1 flex gap-1 z-50">
       <button
