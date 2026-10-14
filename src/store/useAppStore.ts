@@ -11,7 +11,8 @@ interface AppState {
   addPdf: (file: File) => void;
   setCurrentPdf: (pdf: FileNode | null) => void;
   addBookmark: (pdfId: string, name: string, pageNumber: number, boundingRect: unknown) => void;
-  addAiHistoryItem: (item: Omit<AiHistoryItem, 'id' | 'timestamp'>) => void;
+  addAiHistoryItem: (item: Omit<AiHistoryItem, 'timestamp'> & { id?: string }) => void;
+  updateAiHistoryItem: (id: string, updates: Partial<AiHistoryItem>) => void;
   clearAiHistory: () => void;
 }
 
@@ -85,10 +86,18 @@ export const useAppStore = create<AppState>((set) => ({
   addAiHistoryItem: (item) => {
     const newItem: AiHistoryItem = {
       ...item,
-      id: uuidv4(),
+      id: item.id || uuidv4(),
       timestamp: Date.now(),
     };
     set((state) => ({ aiHistory: [newItem, ...state.aiHistory] }));
+  },
+
+  updateAiHistoryItem: (id, updates) => {
+    set((state) => ({
+      aiHistory: state.aiHistory.map((item) =>
+        item.id === id ? { ...item, ...updates } : item
+      ),
+    }));
   },
 
   clearAiHistory: () => set({ aiHistory: [] }),
