@@ -105,7 +105,7 @@ export default function PdfViewerArea() {
         {(pdfDocument) => (
           <PdfHighlighter
             pdfDocument={pdfDocument}
-            enableAreaSelection={(event) => event.altKey}
+            enableAreaSelection={(event) => true}
             onScrollChange={resetHash}
             scrollRef={(scrollTo) => {
               scrollViewerTo.current = scrollTo;
@@ -123,6 +123,9 @@ export default function PdfViewerArea() {
                   addHighlight(newHighlight);
                   
                   if (currentPdf) {
+                    const textToProcess = content.text;
+                    const imageToProcess = content.image;
+
                     if (action === 'bookmark') {
                       addBookmark(
                         currentPdf.id, 
@@ -131,11 +134,36 @@ export default function PdfViewerArea() {
                         position
                       );
                     } else if (['summary', 'question_hard', 'question_review', 'question_tricky', 'flashcards'].includes(action)) {
+                      // Temporarily add a "Generating..." item
+                      const tempId = String(Date.now());
                       addAiHistoryItem({
+                        id: tempId, // We'll need to update the store to accept ID, or we can just use the store to replace it.
                         type: action as any,
-                        highlightedText: content.text || 'Area Highlight',
-                        response: `Generating ${action}... (Mock AI Response for: "${content.text?.substring(0,30)}...")`,
+                        highlightedText: textToProcess || 'Area Highlight',
+                        response: `Generating ${action}...`,
                       });
+
+                      // Actually fetch the AI response
+                      fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                           action,
+                           text: textToProcess,
+                           image: imageToProcess
+                        }),
+                      })
+                        .then((res) => res.json())
+                        .then((data) => {
+                          if (data.result) {
+                            useAppStore.getState().updateAiHistoryItem(tempId, { response: data.result });
+                          } else if (data.error) {
+                            useAppStore.getState().updateAiHistoryItem(tempId, { response: `Error: ${data.error}` });
+                          }
+                        })
+                        .catch((err) => {
+                          useAppStore.getState().updateAiHistoryItem(tempId, { response: `Error: failed to fetch` });
+                        });
                     }
                   }
                   hideTipAndSelection();
@@ -199,9 +227,11 @@ export default function PdfViewerArea() {
 function CustomTip({
   onOpen,
   onConfirm,
+  onUpdate,
 }: {
   onOpen: () => void;
   onConfirm: (action: string, comment?: string) => void;
+  onUpdate?: () => void;
 }) {
   return (
     <div className="bg-white rounded-md shadow-lg border p-1 flex gap-1 z-50">

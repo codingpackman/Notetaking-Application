@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full bg-gray-50 text-gray-900 overflow-hidden font-sans">
       {/* Left Column: Files & Bookmarks */}
-      <div className="w-1/5 min-w-[250px] max-w-[320px] border-r border-gray-200 bg-white flex flex-col shrink-0 shadow-sm z-10">
+      <div className="w-[20%] min-w-[250px] border-r border-gray-200 bg-white flex flex-col shrink-0 shadow-sm z-10">
         <Sidebar />
       </div>
 
@@ -18,7 +18,7 @@ export default function Home() {
       </div>
 
       {/* Right Column: AI Explanation & History */}
-      <div className="w-1/4 min-w-[300px] max-w-[400px] border-l border-gray-200 bg-white flex flex-col shrink-0 shadow-sm z-10">
+      <div className="w-[25%] min-w-[300px] border-l border-gray-200 bg-white flex flex-col shrink-0 shadow-sm z-10">
         <AiPanel />
       </div>
     </div>
