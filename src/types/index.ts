@@ -11,7 +11,7 @@ export interface FileNode {
   boundingRect?: unknown; // For scrolling to the highlight
 }
 
-export type AiActionType = 'summary' | 'question_hard' | 'question_review' | 'question_tricky' | 'flashcards';
+export type AiActionType = 'summary' | 'question_hard' | 'question_review' | 'question_tricky' | 'flashcards' | 'chat';
 
 export interface AiHistoryItem {
   id: string;
