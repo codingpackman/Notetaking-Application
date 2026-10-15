@@ -53,7 +53,13 @@ A Next.js application that allows you to upload PDFs, highlight text/areas, add 
 - **Area/Image Highlight**: Hold the `Alt` (or `Option`) key, then click and drag to select an area, such as a diagram or image.
 - A popup menu will appear once you finish selecting.
 
-### 3. Using the AI Assistant
+### 3. Multi-Box Selection (Batch Mode)
+- Select text or an area and click **Add to Batch** in the popup menu.
+- The selection will be saved temporarily and a floating action bar will appear at the bottom of the PDF viewer.
+- You can continue selecting additional text/areas and adding them to the batch.
+- Once you are ready, use the floating action bar to generate a **Summary** or **Flashcards** for all the combined selections at once!
+
+### 4. Using the AI Assistant
 From the highlight popup menu, you can select one of the following AI actions:
 - **Summarize**: Generates a detailed, beginner-friendly explanation of the selected content.
 - **Practice Q**: Hover over this to choose between generating a **Hard**, **Review**, or **Tricky** question based on the selection.

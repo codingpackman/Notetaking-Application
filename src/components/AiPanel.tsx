@@ -5,6 +5,9 @@ import { Trash2, Brain, BookOpen, HelpCircle, FileText } from 'lucide-react';
 import { AiHistoryItem } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 import { useState } from 'react';
 import { Send, MessageSquare, Sparkles } from 'lucide-react';
@@ -180,7 +183,8 @@ function AiResponseCard({ item }: { item: AiHistoryItem }) {
         )}
         <div className="text-sm sm:text-base text-gray-800 leading-relaxed font-sans prose prose-slate max-w-none">
           <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex]}
             components={{
               h1: ({ children }) => <h1 className="text-lg font-bold text-gray-900 mt-3 mb-1">{children}</h1>,
               h2: ({ children }) => <h2 className="text-base font-bold text-gray-900 mt-2 mb-1">{children}</h2>,
