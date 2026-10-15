@@ -10,6 +10,7 @@ import {
 } from 'react-pdf-highlighter';
 import { useState, useRef, useEffect } from 'react';
 import type { IHighlight, NewHighlight } from 'react-pdf-highlighter';
+import { Layers } from 'lucide-react';
 
 // We need to polyfill Promise.withResolvers for pdfjs-dist
 if (typeof Promise.withResolvers === 'undefined') {
@@ -38,6 +39,7 @@ export default function PdfViewerArea() {
   const addAiHistoryItem = useAppStore((state) => state.addAiHistoryItem);
 
   const [highlights, setHighlights] = useState<Array<IHighlight>>([]);
+  const [multiSelection, setMultiSelection] = useState<Array<{ text?: string, image?: string }>>([]);
   const [zoom, setZoom] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollViewerTo = useRef<((highlight: IHighlight) => void) | null>(null);
@@ -157,8 +159,8 @@ export default function PdfViewerArea() {
       </div>
 
       <div
-        className="w-full h-full transition-transform duration-75 origin-top"
-        style={{ transform: `scale(${zoom})` }}
+        className="w-full h-full"
+
       >
       <PdfLoader 
         url={currentPdf.url} 
@@ -167,6 +169,7 @@ export default function PdfViewerArea() {
         {(pdfDocument) => (
           <PdfHighlighter
             pdfDocument={pdfDocument}
+            pdfScaleValue={zoom.toString()}
             enableAreaSelection={(event) => true}
             onScrollChange={resetHash}
             scrollRef={(scrollTo) => {
@@ -185,6 +188,12 @@ export default function PdfViewerArea() {
                   const newHighlight = { position, content, comment: { text: bookmarkTitle || "", emoji: "" } };
                   addHighlight(newHighlight);
                   
+                  if (action === 'add_to_batch') {
+                    setMultiSelection(prev => [...prev, content]);
+                    hideTipAndSelection();
+                    return;
+                  }
+
                   if (currentPdf) {
                     const textToProcess = content.text;
                     const imageToProcess = content.image;
@@ -284,6 +293,72 @@ export default function PdfViewerArea() {
         )}
       </PdfLoader>
       </div>
+
+      {/* Floating Batch Action Bar */}
+      {multiSelection.length > 0 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white shadow-xl border border-slate-200 rounded-2xl px-4 py-3 flex flex-col gap-2 items-center min-w-[300px] animate-in slide-in-from-bottom-5">
+          <div className="text-sm font-semibold text-slate-700 w-full flex justify-between items-center">
+            <span>{multiSelection.length} Items Selected</span>
+            <button onClick={() => setMultiSelection([])} className="text-xs text-rose-500 hover:underline">Clear</button>
+          </div>
+          <div className="flex gap-2 w-full">
+            <button
+              onClick={() => {
+                const combinedText = multiSelection.map(s => s.text).filter(Boolean).join('\n\n');
+                const images = multiSelection.map(s => s.image).filter(Boolean);
+                const tempId = String(Date.now());
+                addAiHistoryItem({
+                  id: tempId,
+                  type: 'summary',
+                  highlightedText: combinedText.substring(0, 50) + '... (Batch)',
+                  response: `Generating summary for ${multiSelection.length} items...`,
+                });
+
+                fetch('/api/generate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'summary', text: combinedText, images }),
+                }).then(res => res.json()).then(data => {
+                  useAppStore.getState().updateAiHistoryItem(tempId, { response: data.result || `Error: ${data.error}` });
+                }).catch(() => {
+                  useAppStore.getState().updateAiHistoryItem(tempId, { response: `Error: failed to fetch` });
+                });
+                setMultiSelection([]);
+              }}
+              className="flex-1 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors"
+            >
+              Summarize All
+            </button>
+            <button
+              onClick={() => {
+                const combinedText = multiSelection.map(s => s.text).filter(Boolean).join('\n\n');
+                const images = multiSelection.map(s => s.image).filter(Boolean);
+                const tempId = String(Date.now());
+                addAiHistoryItem({
+                  id: tempId,
+                  type: 'flashcards',
+                  highlightedText: combinedText.substring(0, 50) + '... (Batch)',
+                  response: `Generating flashcards for ${multiSelection.length} items...`,
+                });
+
+                fetch('/api/generate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'flashcards', text: combinedText, images }),
+                }).then(res => res.json()).then(data => {
+                  useAppStore.getState().updateAiHistoryItem(tempId, { response: data.result || `Error: ${data.error}` });
+                }).catch(() => {
+                  useAppStore.getState().updateAiHistoryItem(tempId, { response: `Error: failed to fetch` });
+                });
+                setMultiSelection([]);
+              }}
+              className="flex-1 py-1.5 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors"
+            >
+              Flashcards
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -403,6 +478,15 @@ function CustomTip({
 
   return (
     <div className="bg-white/95 backdrop-blur rounded-xl shadow-xl border border-slate-200 p-1 flex gap-1 z-50 text-xs font-medium">
+      <button
+        onClick={() => onConfirm('add_to_batch')}
+        className="px-2.5 py-1.5 hover:bg-indigo-50 rounded-lg text-indigo-700 transition-colors flex items-center gap-1"
+        title="Add to Batch Selection"
+      >
+        <Layers className="w-3.5 h-3.5" />
+        Add to Batch
+      </button>
+      <div className="w-px h-6 bg-slate-200 my-auto"></div>
       <button
         onClick={() => setMode('bookmark_prompt')}
         className="px-2.5 py-1.5 hover:bg-amber-50 rounded-lg text-amber-700 transition-colors"
